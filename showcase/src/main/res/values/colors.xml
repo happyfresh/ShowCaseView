@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="hf_button_positive_press_state">#ff36852e</color>
+
+    <color name="hf_asset_black_19">#ffcccccc</color>
+
+    <color name="hf_button_positive_background">#ff66b648</color>
+</resources>
