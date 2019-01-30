@@ -2,6 +2,8 @@
 
 This repo forked from [**ShowCaseView**](https://github.com/mreram/ShowCaseView)
 
+[![](https://jitpack.io/v/happyfresh/ShowCaseView.svg)](https://jitpack.io/#happyfresh/ShowCaseView)
+
 ## How to use?
 
 1. **Create new variable**
@@ -36,9 +38,49 @@ This repo forked from [**ShowCaseView**](https://github.com/mreram/ShowCaseView)
 <img src="./screenshots/sample1.png" width="300">
 
 ## Installation
-	
-**coming soon**
 
+**Gradle**
+
+1. Add to your root build gradle.
+
+```
+allprojects {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+2. Add the dependency
+
+```
+dependencies {
+    implementation 'com.github.happyfresh:ShowCaseView:1.0'
+}
+```
+
+**Maven**
+
+1. Add to your repository link
+   
+```
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+2. Add the dependency
+
+```
+<dependency>
+    <groupId>com.github.happyfresh</groupId>
+    <artifactId>ShowCaseView</artifactId>
+    <version>1.0</version>
+</dependency>
+```
 
 ## Change type face
 
@@ -123,3 +165,4 @@ Since HappyFresh forked and using this repo from [**ShowCaseView**](https://gith
 | setContentGravity(Gravity.CENTER) | Gravity for content description 
 | setButtonGravity(Gravity.CENTER) | Gravity for Button
 | setButtonText(string) | set button text
+
