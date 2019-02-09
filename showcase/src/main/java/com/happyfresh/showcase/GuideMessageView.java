@@ -26,6 +26,8 @@ public class GuideMessageView extends LinearLayout {
 
     public LinearLayout childContentButton;
     private LinearLayout childContent;
+    public int padding = 0;
+    public int paddingBetween = 0;
 
     public String buttonText = "";
 
@@ -40,13 +42,12 @@ public class GuideMessageView extends LinearLayout {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        final int padding = (int) (10 * density);
-        final int paddingBetween = (int) (3 * density);
+        padding = (int) (10 * density);
+        paddingBetween = (int) (3 * density);
 
         childContent = new LinearLayout(context);
         childContent.setOrientation(VERTICAL);
         mTitleTextView = new TextView(context);
-        mTitleTextView.setPadding(padding, padding, padding, paddingBetween);
         mTitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
         mTitleTextView.setTextColor(Color.BLACK);
         mTitleTextView.setTypeface(mTitleTextView.getTypeface(), Typeface.BOLD);
@@ -56,7 +57,6 @@ public class GuideMessageView extends LinearLayout {
         mContentTextView = new TextView(context);
         mContentTextView.setTextColor(Color.BLACK);
         mContentTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        mContentTextView.setPadding(padding, paddingBetween, padding, padding);
         childContent.addView(mContentTextView);
         addView(childContent, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -80,7 +80,6 @@ public class GuideMessageView extends LinearLayout {
         addView(childContentButton, params);
 
     }
-
 
     public void setTitle(String title) {
         if (title == null) {

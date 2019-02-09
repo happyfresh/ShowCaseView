@@ -396,6 +396,34 @@ public class GuideView extends FrameLayout {
         mMessageView.okButton.setText(buttonText);
     }
 
+    public void setTitlePadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom){
+
+        paddingLeft = mMessageView.padding + paddingLeft;
+        paddingRight = mMessageView.padding + paddingRight;
+        paddingBottom = mMessageView.paddingBetween + paddingBottom;
+        paddingTop = mMessageView.paddingBetween + paddingTop;
+
+        mMessageView.mTitleTextView.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
+    }
+
+    public void setMessagePadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom){
+        paddingLeft = mMessageView.padding + paddingLeft;
+        paddingRight = mMessageView.padding + paddingRight;
+        paddingBottom = mMessageView.paddingBetween + paddingBottom;
+        paddingTop = mMessageView.paddingBetween + paddingTop;
+
+        mMessageView.mContentTextView.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
+    }
+
+    public void setButtonPadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom){
+        paddingLeft = mMessageView.padding + paddingLeft;
+        paddingRight = mMessageView.padding + paddingRight;
+        paddingBottom = mMessageView.paddingBetween + paddingBottom;
+        paddingTop = mMessageView.paddingBetween + paddingTop;
+
+        mMessageView.childContentButton.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
+    }
+
     public void setContentSpan(Spannable span) {
         mMessageView.setContentSpan(span);
     }
@@ -437,6 +465,18 @@ public class GuideView extends FrameLayout {
         private int contentGravity;
         private int buttonGravity;
         private String buttonText;
+        private int paddingLeftTitle;
+        private int paddingRightTitle;
+        private int paddingTopTitle;
+        private int paddingBottomTitle;
+        private int paddingLeftMessage;
+        private int paddingRightMessage;
+        private int paddingBottomMessage;
+        private int paddingTopMessage;
+        private int paddingLeftButton;
+        private int paddingRightButton;
+        private int paddingTopButton;
+        private int paddingBottomButton;
 
         public Builder(Context context) {
             this.context = context;
@@ -477,6 +517,48 @@ public class GuideView extends FrameLayout {
 
         public Builder setContentText(String contentText) {
             this.contentText = contentText;
+            return this;
+        }
+
+        /**
+         *
+         * @param paddingLeftTitle
+         * @param paddingTopTitle
+         * @param paddingRightTitle
+         * @param paddingBottomTitle
+         * @return
+         */
+
+        public Builder setPaddingTitle(int paddingLeftTitle, int paddingTopTitle, int paddingRightTitle, int paddingBottomTitle){
+            this.paddingLeftTitle = paddingLeftTitle;
+            this.paddingTopTitle = paddingTopTitle;
+            this.paddingRightTitle = paddingRightTitle;
+            this.paddingBottomTitle = paddingBottomTitle;
+            return this;
+        }
+
+        /**
+         *
+         * @param paddingLeftMessage
+         * @param paddingTopTitle
+         * @param paddingRightTitle
+         * @param paddingBottomTitle
+         * @return
+         */
+
+        public Builder setPaddingMessage(int paddingLeftMessage, int paddingTopTitle, int paddingRightTitle, int paddingBottomTitle){
+            this.paddingLeftMessage = paddingLeftMessage;
+            this.paddingTopMessage = paddingTopTitle;
+            this.paddingRightMessage = paddingRightTitle;
+            this.paddingBottomMessage = paddingBottomTitle;
+            return this;
+        }
+
+        public Builder setPaddingButton(int paddingLeftButton, int paddingTopButton, int paddingRightButton, int paddingBottomButton){
+            this.paddingLeftButton = paddingLeftButton;
+            this.paddingTopButton = paddingTopButton;
+            this.paddingRightButton = paddingRightButton;
+            this.paddingBottomButton = paddingBottomButton;
             return this;
         }
 
@@ -702,6 +784,15 @@ public class GuideView extends FrameLayout {
             }
             if(buttonText !=null) {
                 guideView.setButtonText(buttonText);
+            }
+            if(paddingLeftTitle !=0 || paddingTopTitle !=0 || paddingRightTitle !=0 || paddingBottomTitle !=0){
+                guideView.setTitlePadding(paddingLeftTitle,paddingTopTitle,paddingRightTitle,paddingBottomTitle);
+            }
+            if(paddingLeftMessage !=0 || paddingTopMessage !=0 || paddingRightMessage !=0 || paddingBottomMessage !=0){
+                guideView.setMessagePadding(paddingLeftMessage,paddingTopMessage,paddingRightMessage,paddingBottomMessage);
+            }
+            if(paddingLeftButton !=0 || paddingRightButton !=0 || paddingBottomButton !=0 || paddingTopButton !=0){
+                guideView.setButtonPadding(paddingLeftButton, paddingTopButton, paddingRightButton, paddingBottomButton);
             }
             return guideView;
         }

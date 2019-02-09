@@ -28,12 +28,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void showCoachLayout() {
         builder = new GuideView.Builder(this)
-                .setTitle("title lorem ipsum dolor sir amet")
-                .setContentText("content lorem ipsum dolor sir amet")
+                .setTitle("Kami butuh alamatmu")
+                .setContentText("Untuk memastikan alamat pengantaran berada dalam jangkauan HappyFresh")
                 .setViewAlign(AlignType.center)
-                .setTitleGravity(Gravity.CENTER)
-                .setContentGravity(Gravity.RIGHT)
-                .setButtonGravity(Gravity.CENTER)
+                .setTitleGravity(Gravity.LEFT)
+                .setContentGravity(Gravity.LEFT)
+                .setButtonGravity(Gravity.RIGHT)
+                .setPaddingTitle(50,10,40,10)
+                .setPaddingMessage(50,10,40,10)
+                .setPaddingButton(0,10,40,10)
                 .setButtonText("OK")
                 .setTargetView(myButton)
                 .setGuideListener(new GuideListener() {
