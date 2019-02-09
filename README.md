@@ -55,7 +55,7 @@ allprojects {
 
 ```
 dependencies {
-    implementation 'com.github.happyfresh:ShowCaseView:1.0'
+    implementation 'com.github.happyfresh:ShowCaseView:1.1'
 }
 ```
 
@@ -78,7 +78,7 @@ dependencies {
 <dependency>
     <groupId>com.github.happyfresh</groupId>
     <artifactId>ShowCaseView</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 </dependency>
 ```
 
