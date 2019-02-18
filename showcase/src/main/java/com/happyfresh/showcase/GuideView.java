@@ -75,7 +75,7 @@ public class GuideView extends FrameLayout {
     public GuideMessageView mMessageView;
     private boolean str = false;
 
-    private GuideView(Context context, View view) {
+    private GuideView(Context context, final View view) {
         super(context);
         setWillNotDraw(false);
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -130,12 +130,12 @@ public class GuideView extends FrameLayout {
         getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
 
 //        if(str){
-//            mMessageView.okButton.setOnClickListener(new OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    dismiss();
-//                }
-//            });
+            mMessageView.okButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss(v);
+                }
+            });
 //        }
     }
 
@@ -260,16 +260,15 @@ public class GuideView extends FrameLayout {
     }
 
     public void dismiss() {
+        dismiss(target);
+    }
+
+    public void dismiss(View view) {
         ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(this);
         mIsShowing = false;
         if (mGuideListener != null) {
-            mGuideListener.onDismiss(target);
+            mGuideListener.onDismiss(view);
         }
-    }
-
-    public void dismissFromButton(){
-        ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(this);
-        mIsShowing = false;
     }
 
     @Override
@@ -298,7 +297,7 @@ public class GuideView extends FrameLayout {
                     break;
 
             }
-            
+
             return true;
         }
 
