@@ -130,12 +130,12 @@ public class GuideView extends FrameLayout {
         getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
 
 //        if(str){
-            mMessageView.okButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dismiss();
-                }
-            });
+//            mMessageView.okButton.setOnClickListener(new OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    dismiss();
+//                }
+//            });
 //        }
     }
 
@@ -267,6 +267,11 @@ public class GuideView extends FrameLayout {
         }
     }
 
+    public void dismissFromButton(){
+        ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(this);
+        mIsShowing = false;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
@@ -293,8 +298,7 @@ public class GuideView extends FrameLayout {
                     break;
 
             }
-
-            Log.d("sda","Sd");
+            
             return true;
         }
 

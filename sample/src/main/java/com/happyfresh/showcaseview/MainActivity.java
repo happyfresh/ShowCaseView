@@ -42,12 +42,25 @@ public class MainActivity extends AppCompatActivity {
                 .setGuideListener(new GuideListener() {
                     @Override
                     public void onDismiss(View view) {
-                       Log.d(TAG,"Success");
+                        switch (view.getId()) {
+                            case R.id.my_button :
+
+                                Log.d("button target","view");
+                                break;
+                        }
+
+
                     }
                 });
 
         mGuideView = builder.build();
         mGuideView.show();
-
+        mGuideView.mMessageView.okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mGuideView.dismissFromButton();
+                Log.d("button message","click");
+            }
+        });
     }
 }
