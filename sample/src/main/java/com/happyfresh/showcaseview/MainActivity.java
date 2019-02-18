@@ -55,12 +55,5 @@ public class MainActivity extends AppCompatActivity {
 
         mGuideView = builder.build();
         mGuideView.show();
-        mGuideView.mMessageView.okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mGuideView.dismissFromButton();
-                Log.d("button message","click");
-            }
-        });
     }
 }

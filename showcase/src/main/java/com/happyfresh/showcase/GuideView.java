@@ -72,7 +72,7 @@ public class GuideView extends FrameLayout {
     private GuideListener mGuideListener;
     private AlignType mAlignType;
     private DismissType dismissType;
-    public GuideMessageView mMessageView;
+    private GuideMessageView mMessageView;
     private boolean str = false;
 
     private GuideView(Context context, final View view) {
