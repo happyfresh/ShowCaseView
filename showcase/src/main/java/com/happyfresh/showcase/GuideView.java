@@ -7,7 +7,12 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.*;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
+import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -397,6 +402,14 @@ public class GuideView extends FrameLayout {
 
     public void setButtonText(String buttonText){
         mMessageView.okButton.setText(buttonText);
+    }
+
+    public void setButtonBackground(Drawable drawable){
+        mMessageView.okButton.setBackground(drawable);
+    }
+
+    public void setButtonBackground(@ColorInt int color){
+        mMessageView.okButton.setBackgroundColor(color);
     }
 
     public void setTitlePadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom){
