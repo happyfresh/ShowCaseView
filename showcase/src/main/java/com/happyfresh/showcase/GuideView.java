@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.text.Spannable;
 import android.view.MotionEvent;
 import android.view.View;
@@ -402,6 +403,10 @@ public class GuideView extends FrameLayout {
         mMessageView.okButton.setBackground(drawable);
     }
 
+    public void setButtonTextColor(@ColorInt int color){
+        mMessageView.okButton.setTextColor(color);
+    }
+
     public void setTitlePadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom){
 
         paddingLeft = mMessageView.padding + paddingLeft;
@@ -472,6 +477,7 @@ public class GuideView extends FrameLayout {
         private int buttonGravity;
         private String buttonText;
         private Drawable buttonBackground;
+        private Integer buttonTextColor;
         private int paddingLeftTitle;
         private int paddingRightTitle;
         private int paddingTopTitle;
@@ -723,6 +729,11 @@ public class GuideView extends FrameLayout {
             this.buttonBackground = drawable;
             return this;
         }
+
+        public Builder setButtonTextColor(@ColorInt int color){
+            this.buttonTextColor = color;
+            return this;
+        }
         /**
          * changing inner circle size indicator
          *
@@ -799,6 +810,9 @@ public class GuideView extends FrameLayout {
             }
             if (buttonBackground != null) {
                 guideView.setButtonBackground(buttonBackground);
+            }
+            if (buttonTextColor != null) {
+                guideView.setButtonTextColor(buttonTextColor);
             }
             if(paddingLeftTitle !=0 || paddingTopTitle !=0 || paddingRightTitle !=0 || paddingBottomTitle !=0){
                 guideView.setTitlePadding(paddingLeftTitle,paddingTopTitle,paddingRightTitle,paddingBottomTitle);
