@@ -9,18 +9,12 @@ import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.annotation.DrawableRes;
-import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
-import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.happyfresh.showcase.config.AlignType;
@@ -408,10 +402,6 @@ public class GuideView extends FrameLayout {
         mMessageView.okButton.setBackground(drawable);
     }
 
-    public void setButtonBackground(@ColorInt int color){
-        mMessageView.okButton.setBackgroundColor(color);
-    }
-
     public void setTitlePadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom){
 
         paddingLeft = mMessageView.padding + paddingLeft;
@@ -481,6 +471,7 @@ public class GuideView extends FrameLayout {
         private int contentGravity;
         private int buttonGravity;
         private String buttonText;
+        private Drawable buttonBackground;
         private int paddingLeftTitle;
         private int paddingRightTitle;
         private int paddingTopTitle;
@@ -727,6 +718,11 @@ public class GuideView extends FrameLayout {
             this.buttonText = buttonText;
             return this;
         }
+
+        public Builder setButtonBackground(Drawable drawable){
+            this.buttonBackground = drawable;
+            return this;
+        }
         /**
          * changing inner circle size indicator
          *
@@ -800,6 +796,9 @@ public class GuideView extends FrameLayout {
             }
             if(buttonText !=null) {
                 guideView.setButtonText(buttonText);
+            }
+            if (buttonBackground != null) {
+                guideView.setButtonBackground(buttonBackground);
             }
             if(paddingLeftTitle !=0 || paddingTopTitle !=0 || paddingRightTitle !=0 || paddingBottomTitle !=0){
                 guideView.setTitlePadding(paddingLeftTitle,paddingTopTitle,paddingRightTitle,paddingBottomTitle);
