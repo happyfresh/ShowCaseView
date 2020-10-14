@@ -146,10 +146,11 @@ dependencies {
                        .show();
 
 ## Hide button and also onclick listener
-
+   ```
 mGuideView.mMessageView.okButton.setVisibility(View.GONE);
 
 mGuideView.mMessageView.okButton.onclickListener...
+   ```
 
 ### DismissType Attribute
 
