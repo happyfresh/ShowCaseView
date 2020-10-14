@@ -72,8 +72,7 @@ public class GuideView extends FrameLayout {
     private GuideListener mGuideListener;
     private AlignType mAlignType;
     private DismissType dismissType;
-    private GuideMessageView mMessageView;
-    private boolean str = false;
+    public GuideMessageView mMessageView;
 
     private GuideView(Context context, final View view) {
         super(context);
@@ -129,14 +128,6 @@ public class GuideView extends FrameLayout {
         };
         getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
 
-//        if(str){
-            mMessageView.okButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dismiss(v);
-                }
-            });
-//        }
     }
 
     private void startAnimationSize() {
