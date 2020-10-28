@@ -1,5 +1,6 @@
 package com.happyfresh.showcaseview;
 
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
                 .setTitleGravity(Gravity.LEFT)
                 .setContentGravity(Gravity.LEFT)
                 .setButtonGravity(Gravity.RIGHT)
+                .setButtonBackground(ContextCompat.getDrawable(this, R.drawable.rounded))
+                .setButtonTextColor(ContextCompat.getColor(this, R.color.colorAccent))
                 .setPaddingTitle(50,10,40,10)
                 .setPaddingMessage(50,10,40,10)
                 .setPaddingButton(0,10,40,10)

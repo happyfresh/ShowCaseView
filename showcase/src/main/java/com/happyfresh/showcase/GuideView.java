@@ -10,6 +10,7 @@ import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.text.Spannable;
 import android.view.MotionEvent;
 import android.view.View;
@@ -266,6 +267,10 @@ public class GuideView extends FrameLayout {
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
+
+        if(dismissType == null) {
+            return false;
+        }
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             switch (dismissType) {
@@ -751,7 +756,7 @@ public class GuideView extends FrameLayout {
         public GuideView build() {
             GuideView guideView = new GuideView(context, targetView);
             guideView.mAlignType = alignType != null ? alignType : AlignType.auto;
-            guideView.dismissType = dismissType != null ? dismissType : DismissType.targetView;
+            guideView.dismissType = dismissType;
             float density = context.getResources().getDisplayMetrics().density;
 
             guideView.setTitle(title);
