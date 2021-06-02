@@ -92,7 +92,6 @@ public class GuideView extends FrameLayout {
 
         mMessageView = new GuideMessageView(getContext());
         mMessageView.setPadding(messageViewPadding, messageViewPadding, messageViewPadding, messageViewPadding);
-        mMessageView.setColor(Color.WHITE);
 
         addView(mMessageView, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -209,13 +208,9 @@ public class GuideView extends FrameLayout {
         super.onDraw(canvas);
         if (target != null) {
 
-            selfPaint.setColor(BACKGROUND_COLOR);
-            selfPaint.setStyle(Paint.Style.FILL);
-            selfPaint.setAntiAlias(true);
             canvas.drawRect(selfRect, selfPaint);
 
             paintLine.setStyle(Paint.Style.FILL);
-            paintLine.setColor(LINE_INDICATOR_COLOR);
             paintLine.setStrokeWidth(lineIndicatorWidthSize);
             paintLine.setAntiAlias(true);
 
@@ -452,6 +447,19 @@ public class GuideView extends FrameLayout {
         mMessageView.setContentTextSize(size);
     }
 
+    public void setVisibleBackgroundOverlay(boolean isVisibleBackground) {
+        if(isVisibleBackground) {
+            selfPaint.setColor(BACKGROUND_COLOR);
+            selfPaint.setStyle(Paint.Style.FILL);
+            selfPaint.setAntiAlias(true);
+        }
+    }
+
+    public void setBackgroundColor(int backgroundColor) {
+        mMessageView.setColor(backgroundColor);
+        paintLine.setColor(backgroundColor);
+    }
+
     public static class Builder {
         private View targetView;
         private String title, contentText;
@@ -460,6 +468,8 @@ public class GuideView extends FrameLayout {
         private Context context;
         private Spannable contentSpan;
         private Typeface titleTypeFace, contentTypeFace;
+        private boolean visibleBackground;
+        private int backgroundColor;
         private GuideListener guideListener;
         private int titleTextSize;
         private int contentTextSize;
@@ -640,6 +650,27 @@ public class GuideView extends FrameLayout {
         }
 
         /**
+         *  define visible background showcase
+         *
+         * @param visibleBackground
+         * @return
+         */
+        public Builder setVisibleBackgroundOverlay(boolean visibleBackground) {
+            this.visibleBackground = visibleBackground;
+            return this;
+        }
+
+        /**
+         * define background color
+         * @param colorOverlay
+         * @return
+         */
+        public Builder setBackgroundColor(int colorOverlay) {
+            this.backgroundColor = colorOverlay;
+            return this;
+        }
+
+        /**
          * this method defining the type of dismissing function
          *
          * @param dismissType should be one type of DismissType enum. for example: outside -> Dismissing with click on outside of MessageView
@@ -770,6 +801,12 @@ public class GuideView extends FrameLayout {
                 guideView.setContentSpan(contentSpan);
             if (titleTypeFace != null) {
                 guideView.setTitleTypeFace(titleTypeFace);
+            }
+            if(guideView.selfPaint !=null) {
+                guideView.setVisibleBackgroundOverlay(visibleBackground);
+            }
+            if(backgroundColor !=0) {
+                guideView.setBackgroundColor(backgroundColor);
             }
             if (contentTypeFace != null) {
                 guideView.setContentTypeFace(contentTypeFace);
