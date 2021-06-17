@@ -11,6 +11,7 @@ import android.widget.Button;
 
 import com.happyfresh.showcase.GuideView;
 import com.happyfresh.showcase.config.AlignType;
+import com.happyfresh.showcase.config.ShowCaseType;
 import com.happyfresh.showcase.listener.GuideListener;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,6 +34,10 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle("Kami butuh alamatmu")
                 .setContentText("Untuk memastikan alamat pengantaran berada dalam jangkauan HappyFresh")
                 .setViewAlign(AlignType.center)
+                .setTooltipTriangleColor(ContextCompat.getColor(this, android.R.color.holo_blue_bright))
+//                 remove this comment to perform tooltip type
+//                .setShowCaseType(ShowCaseType.TOOLTIP)
+//                .setTooltipTriangleSize(15)
                 .setTitleGravity(Gravity.LEFT)
                 .setContentGravity(Gravity.LEFT)
                 .setButtonGravity(Gravity.RIGHT)

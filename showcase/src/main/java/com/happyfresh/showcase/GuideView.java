@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 
 import com.happyfresh.showcase.config.AlignType;
 import com.happyfresh.showcase.config.DismissType;
+import com.happyfresh.showcase.config.ShowCaseType;
 import com.happyfresh.showcase.listener.GuideListener;
 
 public class GuideView extends FrameLayout {
@@ -28,6 +29,7 @@ public class GuideView extends FrameLayout {
     static final String TAG = "GuideView";
 
     private static final int INDICATOR_HEIGHT              = 40;
+    private static final int INDICATOR_HEIGHT_TOOLTIP      = 10;
     private static final int MESSAGE_VIEW_PADDING          = 5;
     private static final int SIZE_ANIMATION_DURATION       = 700;
     private static final int APPEARING_ANIMATION_DURATION  = 400;
@@ -38,6 +40,7 @@ public class GuideView extends FrameLayout {
     private static final int MARGIN_INDICATOR              = 15;
 
     private static final int BACKGROUND_COLOR              = 0x99000000;
+    private static final int BACKGROUND_TRANSPARENT        = 0X00ff0000;
     private static final int CIRCLE_INNER_INDICATOR_COLOR  = 0xffcccccc;
     private static final int CIRCLE_INDICATOR_COLOR        = Color.WHITE;
     private static final int LINE_INDICATOR_COLOR          = Color.WHITE;
@@ -58,6 +61,10 @@ public class GuideView extends FrameLayout {
     private boolean mIsShowing;
     private int yMessageView = 0;
 
+    @ColorInt
+    private int tooltipTriangleColor;
+    private int toolTipTriangleSize;
+
     private float startYLineAndCircle;
     private float circleIndicatorSize = 0;
     private float circleIndicatorSizeFinal;
@@ -67,12 +74,14 @@ public class GuideView extends FrameLayout {
     private float marginGuide;
     private float strokeCircleWidth;
     private float indicatorHeight;
+    private float indicatorHeightTooltip;
 
     private boolean isPerformedAnimationSize = false;
 
     private GuideListener mGuideListener;
     private AlignType mAlignType;
     private DismissType dismissType;
+    private ShowCaseType showCaseType;
     public GuideMessageView mMessageView;
 
     private GuideView(Context context, final View view) {
@@ -122,7 +131,11 @@ public class GuideView extends FrameLayout {
                 marginGuide = (int) (isTop ? marginGuide : -marginGuide);
                 startYLineAndCircle = (isTop ? targetRect.bottom : targetRect.top) + marginGuide;
                 stopY = yMessageView + indicatorHeight;
-                startAnimationSize();
+
+                if (showCaseType == ShowCaseType.ON_BOARDING) {
+                    startAnimationSize();
+                }
+
                 getViewTreeObserver().addOnGlobalLayoutListener(this);
             }
         };
@@ -183,6 +196,7 @@ public class GuideView extends FrameLayout {
         lineIndicatorWidthSize = LINE_INDICATOR_WIDTH_SIZE * density;
         marginGuide = MARGIN_INDICATOR * density;
         indicatorHeight = INDICATOR_HEIGHT * density;
+        indicatorHeightTooltip = INDICATOR_HEIGHT_TOOLTIP * density;
         messageViewPadding = (int) (MESSAGE_VIEW_PADDING * density);
         strokeCircleWidth = STROKE_CIRCLE_INDICATOR_SIZE * density;
         circleIndicatorSizeFinal = CIRCLE_INDICATOR_SIZE * density;
@@ -211,6 +225,9 @@ public class GuideView extends FrameLayout {
             canvas.drawRect(selfRect, selfPaint);
 
             paintLine.setStyle(Paint.Style.FILL);
+            if (showCaseType == ShowCaseType.TOOLTIP) {
+                paintLine.setColor(tooltipTriangleColor);
+            }
             paintLine.setStrokeWidth(lineIndicatorWidthSize);
             paintLine.setAntiAlias(true);
 
@@ -226,19 +243,39 @@ public class GuideView extends FrameLayout {
 
 
             final float x = (targetRect.left / 2 + targetRect.right / 2);
-            canvas.drawLine(x,
-                    startYLineAndCircle,
-                    x,
-                    stopY,
-                    paintLine);
 
-            canvas.drawCircle(x, startYLineAndCircle, circleIndicatorSize, paintCircle);
-            canvas.drawCircle(x, startYLineAndCircle, circleInnerIndicatorSize, paintCircleInner);
+            if (showCaseType == ShowCaseType.ON_BOARDING) {
+                canvas.drawLine(x,
+                        startYLineAndCircle,
+                        x,
+                        stopY,
+                        paintLine);
 
-            targetPaint.setXfermode(X_FER_MODE_CLEAR);
-            targetPaint.setAntiAlias(true);
+                canvas.drawCircle(x, startYLineAndCircle, circleIndicatorSize, paintCircle);
+                canvas.drawCircle(x, startYLineAndCircle, circleInnerIndicatorSize, paintCircleInner);
+                targetPaint.setXfermode(X_FER_MODE_CLEAR);
+                targetPaint.setAntiAlias(true);
 
-            canvas.drawRoundRect(targetRect, RADIUS_SIZE_TARGET_RECT, RADIUS_SIZE_TARGET_RECT, targetPaint);
+                canvas.drawRoundRect(targetRect, RADIUS_SIZE_TARGET_RECT, RADIUS_SIZE_TARGET_RECT, targetPaint);
+            }
+
+            if (showCaseType == ShowCaseType.TOOLTIP) {
+                Path path = new Path();
+                float y = isTop ? targetRect.bottom : targetRect.top;
+                path.setFillType(Path.FillType.EVEN_ODD);
+                if (!isTop) {
+                    path.moveTo(x - (toolTipTriangleSize * density), y - (toolTipTriangleSize * density));
+                    path.lineTo(x, y);
+                    path.lineTo(x + (toolTipTriangleSize * density), y - (toolTipTriangleSize * density));
+                }
+                else {
+                    path.moveTo(x - (toolTipTriangleSize * density), y + (toolTipTriangleSize * density));
+                    path.lineTo(x, y);
+                    path.lineTo(x + (toolTipTriangleSize * density), y + (toolTipTriangleSize * density));
+                }
+                path.close();
+                canvas.drawPath(path, paintLine);
+            }
         }
     }
 
@@ -337,12 +374,12 @@ public class GuideView extends FrameLayout {
         //set message view bottom
         if (targetRect.top + (indicatorHeight) > getHeight() / 2) {
             isTop = false;
-            yMessageView = (int) (targetRect.top - mMessageView.getHeight() - indicatorHeight);
+            yMessageView = (int) (targetRect.top - mMessageView.getHeight() - (showCaseType == ShowCaseType.ON_BOARDING ? indicatorHeight : indicatorHeightTooltip));
         }
         //set message view top
         else {
             isTop = true;
-            yMessageView = (int) (targetRect.top + target.getHeight() + indicatorHeight);
+            yMessageView = ((int) (targetRect.top + target.getHeight() + (showCaseType == ShowCaseType.ON_BOARDING ? indicatorHeight : indicatorHeightTooltip)));
         }
 
         if (yMessageView < 0)
@@ -449,7 +486,7 @@ public class GuideView extends FrameLayout {
 
     public void setVisibleBackgroundOverlay(boolean isVisibleBackground) {
         if(isVisibleBackground) {
-            selfPaint.setColor(BACKGROUND_COLOR);
+            selfPaint.setColor(showCaseType == ShowCaseType.ON_BOARDING ? BACKGROUND_COLOR : BACKGROUND_TRANSPARENT);
             selfPaint.setStyle(Paint.Style.FILL);
             selfPaint.setAntiAlias(true);
         }
@@ -465,6 +502,7 @@ public class GuideView extends FrameLayout {
         private String title, contentText;
         private AlignType alignType;
         private DismissType dismissType;
+        private ShowCaseType showCaseType;
         private Context context;
         private Spannable contentSpan;
         private Typeface titleTypeFace, contentTypeFace;
@@ -496,6 +534,10 @@ public class GuideView extends FrameLayout {
         private int paddingRightButton;
         private int paddingTopButton;
         private int paddingBottomButton;
+
+        @ColorInt
+        private int tooltipTriangleColor;
+        private int tooltipTriangleSize;
 
         public Builder(Context context) {
             this.context = context;
@@ -681,6 +723,21 @@ public class GuideView extends FrameLayout {
             return this;
         }
 
+        public Builder setShowCaseType(ShowCaseType showCaseType) {
+            this.showCaseType = showCaseType;
+            return this;
+        }
+
+        public Builder setTooltipTriangleColor(@ColorInt int color) {
+            this.tooltipTriangleColor = color;
+            return this;
+        }
+
+        public Builder setTooltipTriangleSize(int tooltipTriangleSize) {
+            this.tooltipTriangleSize = tooltipTriangleSize;
+            return this;
+        }
+
         /**
          * changing line height indicator
          *
@@ -788,6 +845,10 @@ public class GuideView extends FrameLayout {
             GuideView guideView = new GuideView(context, targetView);
             guideView.mAlignType = alignType != null ? alignType : AlignType.auto;
             guideView.dismissType = dismissType;
+            guideView.showCaseType = showCaseType == null ? ShowCaseType.ON_BOARDING : showCaseType;
+            guideView.tooltipTriangleColor = tooltipTriangleColor;
+            guideView.toolTipTriangleSize = tooltipTriangleSize;
+
             float density = context.getResources().getDisplayMetrics().density;
 
             guideView.setTitle(title);
