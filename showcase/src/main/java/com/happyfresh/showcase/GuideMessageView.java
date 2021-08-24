@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -14,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 public class GuideMessageView extends LinearLayout {
 

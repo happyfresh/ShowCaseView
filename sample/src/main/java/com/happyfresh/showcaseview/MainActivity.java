@@ -1,13 +1,15 @@
 package com.happyfresh.showcaseview;
 
 import android.graphics.Color;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.happyfresh.showcase.GuideView;
 import com.happyfresh.showcase.config.AlignType;
@@ -36,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
                 .setViewAlign(AlignType.center)
                 .setTooltipTriangleColor(ContextCompat.getColor(this, android.R.color.holo_blue_bright))
 //                 remove this comment to perform tooltip type
-//                .setShowCaseType(ShowCaseType.TOOLTIP)
-//                .setTooltipTriangleSize(15)
+                .setShowCaseType(ShowCaseType.ON_BOARDING_ARROW)
+                .setTooltipTriangleSize(15)
                 .setTitleGravity(Gravity.LEFT)
                 .setContentGravity(Gravity.LEFT)
                 .setButtonGravity(Gravity.RIGHT)

@@ -9,8 +9,6 @@ import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DrawableRes;
 import android.text.Spannable;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,6 +16,8 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
 import android.widget.FrameLayout;
+
+import androidx.annotation.ColorInt;
 
 import com.happyfresh.showcase.config.AlignType;
 import com.happyfresh.showcase.config.DismissType;
@@ -259,7 +259,7 @@ public class GuideView extends FrameLayout {
                 canvas.drawRoundRect(targetRect, RADIUS_SIZE_TARGET_RECT, RADIUS_SIZE_TARGET_RECT, targetPaint);
             }
 
-            if (showCaseType == ShowCaseType.TOOLTIP) {
+            if (showCaseType == ShowCaseType.TOOLTIP || showCaseType == ShowCaseType.ON_BOARDING_ARROW) {
                 Path path = new Path();
                 float y = isTop ? targetRect.bottom : targetRect.top;
                 path.setFillType(Path.FillType.EVEN_ODD);
@@ -279,6 +279,7 @@ public class GuideView extends FrameLayout {
         }
     }
 
+    @SuppressWarnings("unused")
     public boolean isShowing() {
         return mIsShowing;
     }
@@ -349,6 +350,7 @@ public class GuideView extends FrameLayout {
         postInvalidate();
     }
 
+    @SuppressWarnings("unused")
     public void updateGuideViewLocation(){
         requestLayout();
     }
@@ -486,7 +488,8 @@ public class GuideView extends FrameLayout {
 
     public void setVisibleBackgroundOverlay(boolean isVisibleBackground) {
         if(isVisibleBackground) {
-            selfPaint.setColor(showCaseType == ShowCaseType.ON_BOARDING ? BACKGROUND_COLOR : BACKGROUND_TRANSPARENT);
+            selfPaint.setColor(showCaseType == ShowCaseType.ON_BOARDING
+                    || showCaseType == ShowCaseType.ON_BOARDING_ARROW ? BACKGROUND_COLOR : BACKGROUND_TRANSPARENT);
             selfPaint.setStyle(Paint.Style.FILL);
             selfPaint.setAntiAlias(true);
         }
