@@ -24,6 +24,9 @@ import com.happyfresh.showcase.config.DismissType;
 import com.happyfresh.showcase.config.ShowCaseType;
 import com.happyfresh.showcase.listener.GuideListener;
 
+import dagger.hilt.android.internal.managers.FragmentComponentManager;
+import dagger.hilt.android.internal.managers.ViewComponentManager;
+
 public class GuideView extends FrameLayout {
 
     static final String TAG = "GuideView";
@@ -397,7 +400,12 @@ public class GuideView extends FrameLayout {
                 ViewGroup.LayoutParams.MATCH_PARENT));
         this.setClickable(false);
 
-        ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).addView(this);
+        if (getContext() instanceof ViewComponentManager.FragmentContextWrapper) {
+            ((ViewGroup) ((Activity) FragmentComponentManager.findActivity(getContext())).getWindow().getDecorView()).addView(this);
+        }
+        else {
+            ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).addView(this);
+        }
         AlphaAnimation startAnimation = new AlphaAnimation(0.0f, 1.0f);
         startAnimation.setDuration(APPEARING_ANIMATION_DURATION);
         startAnimation.setFillAfter(true);
