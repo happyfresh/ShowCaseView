@@ -292,7 +292,12 @@ public class GuideView extends FrameLayout {
     }
 
     public void dismiss(View view) {
-        ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(this);
+        if (getContext() instanceof ViewComponentManager.FragmentContextWrapper) {
+            ((ViewGroup) ((Activity) FragmentComponentManager.findActivity(getContext())).getWindow().getDecorView()).removeView(this);
+        }
+        else {
+            ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(this);
+        }
         mIsShowing = false;
         if (mGuideListener != null) {
             mGuideListener.onDismiss(view);
