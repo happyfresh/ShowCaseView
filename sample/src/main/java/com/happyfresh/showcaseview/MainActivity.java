@@ -13,7 +13,9 @@ import androidx.core.content.ContextCompat;
 
 import com.happyfresh.showcase.GuideView;
 import com.happyfresh.showcase.config.AlignType;
+import com.happyfresh.showcase.config.DismissType;
 import com.happyfresh.showcase.config.ShowCaseType;
+import com.happyfresh.showcase.config.TooltipArrow;
 import com.happyfresh.showcase.listener.GuideListener;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,7 +30,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myButton = (Button) findViewById(R.id.my_button);
-        showCoachLayout();
+//        showCoachLayout();
+        myButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showTooltip(view);
+            }
+        });
     }
 
     private void showCoachLayout() {
@@ -75,5 +83,22 @@ public class MainActivity extends AppCompatActivity {
                 mGuideView.dismiss(v);
             }
         });
+    }
+
+    private void showTooltip(View targetView) {
+        builder = new GuideView.Builder(this);
+        builder.setShowCaseType(ShowCaseType.TOOLTIP);
+        builder.setTargetView(targetView);
+        builder.setViewAlign(AlignType.center);
+        builder.setDismissType(DismissType.outside);
+        builder.setBackgroundColor(android.R.color.transparent);
+        builder.setContentTextColor(android.R.color.white);
+        builder.setContentBackground(R.drawable.rounded);
+        builder.setTooltipTriangleColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        builder.setTooltipTriangleSize(10);
+        builder.setTooltipArrow(TooltipArrow.RIGHT);
+        builder.setContentText("This is tooltip implementation");
+        mGuideView = builder.build();
+        mGuideView.show();
     }
 }

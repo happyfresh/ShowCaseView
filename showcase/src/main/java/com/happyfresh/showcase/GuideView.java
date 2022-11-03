@@ -6,7 +6,17 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.*;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Typeface;
+import android.graphics.Xfermode;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Spannable;
@@ -18,10 +28,14 @@ import android.view.animation.AlphaAnimation;
 import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StyleRes;
 
 import com.happyfresh.showcase.config.AlignType;
 import com.happyfresh.showcase.config.DismissType;
 import com.happyfresh.showcase.config.ShowCaseType;
+import com.happyfresh.showcase.config.TooltipArrow;
 import com.happyfresh.showcase.listener.GuideListener;
 
 import dagger.hilt.android.internal.managers.FragmentComponentManager;
@@ -31,28 +45,29 @@ public class GuideView extends FrameLayout {
 
     static final String TAG = "GuideView";
 
-    private static final int INDICATOR_HEIGHT              = 40;
-    private static final int INDICATOR_HEIGHT_TOOLTIP      = 10;
-    private static final int MESSAGE_VIEW_PADDING          = 5;
-    private static final int SIZE_ANIMATION_DURATION       = 700;
-    private static final int APPEARING_ANIMATION_DURATION  = 400;
-    private static final int CIRCLE_INDICATOR_SIZE         = 6;
-    private static final int LINE_INDICATOR_WIDTH_SIZE     = 3;
-    private static final int STROKE_CIRCLE_INDICATOR_SIZE  = 3;
-    private static final int RADIUS_SIZE_TARGET_RECT       = 15;
-    private static final int MARGIN_INDICATOR              = 15;
+    private static final int INDICATOR_HEIGHT = 40;
+    private static final int INDICATOR_HEIGHT_TOOLTIP = 10;
+    private static final int MESSAGE_VIEW_PADDING = 7;
+    private static final int SIZE_ANIMATION_DURATION = 700;
+    private static final int APPEARING_ANIMATION_DURATION = 400;
+    private static final int CIRCLE_INDICATOR_SIZE = 6;
+    private static final int LINE_INDICATOR_WIDTH_SIZE = 3;
+    private static final int STROKE_CIRCLE_INDICATOR_SIZE = 3;
+    private static final int RADIUS_SIZE_TARGET_RECT = 15;
+    private static final int MARGIN_INDICATOR = 15;
+    private static final int TOOLTIP_PADDING = 16;
 
-    private static final int BACKGROUND_COLOR              = 0x99000000;
-    private static final int BACKGROUND_TRANSPARENT        = 0X00ff0000;
-    private static final int CIRCLE_INNER_INDICATOR_COLOR  = 0xffcccccc;
-    private static final int CIRCLE_INDICATOR_COLOR        = Color.WHITE;
-    private static final int LINE_INDICATOR_COLOR          = Color.WHITE;
+    private static final int BACKGROUND_COLOR = 0x99000000;
+    private static final int BACKGROUND_TRANSPARENT = 0X00ff0000;
+    private static final int CIRCLE_INNER_INDICATOR_COLOR = 0xffcccccc;
+    private static final int CIRCLE_INDICATOR_COLOR = Color.WHITE;
+    private static final int LINE_INDICATOR_COLOR = Color.WHITE;
 
-    private final Paint selfPaint           = new Paint();
-    private final Paint paintLine           = new Paint();
-    private final Paint paintCircle         = new Paint();
-    private final Paint paintCircleInner    = new Paint();
-    private final Paint targetPaint         = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint selfPaint = new Paint();
+    private final Paint paintLine = new Paint();
+    private final Paint paintCircle = new Paint();
+    private final Paint paintCircleInner = new Paint();
+    private final Paint targetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Xfermode X_FER_MODE_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
 
     private View target;
@@ -60,7 +75,7 @@ public class GuideView extends FrameLayout {
     private final Rect selfRect = new Rect();
 
     private float density, stopY;
-    private boolean isTop;
+    private Boolean isTop;
     private boolean mIsShowing;
     private int yMessageView = 0;
 
@@ -78,6 +93,8 @@ public class GuideView extends FrameLayout {
     private float strokeCircleWidth;
     private float indicatorHeight;
     private float indicatorHeightTooltip;
+    private int tooltipMessageViewPadding;
+
 
     private boolean isPerformedAnimationSize = false;
 
@@ -85,13 +102,15 @@ public class GuideView extends FrameLayout {
     private AlignType mAlignType;
     private DismissType dismissType;
     private ShowCaseType showCaseType;
+    private TooltipArrow tooltipArrow;
     public GuideMessageView mMessageView;
 
-    private GuideView(Context context, final View view) {
+    private GuideView(Context context, final View view, ShowCaseType type) {
         super(context);
         setWillNotDraw(false);
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
         this.target = view;
+        this.showCaseType = type;
         density = context.getResources().getDisplayMetrics().density;
         init();
 
@@ -102,8 +121,14 @@ public class GuideView extends FrameLayout {
                 locationTarget[0] + target.getWidth(),
                 locationTarget[1] + target.getHeight());
 
-        mMessageView = new GuideMessageView(getContext());
-        mMessageView.setPadding(messageViewPadding, messageViewPadding, messageViewPadding, messageViewPadding);
+        if (showCaseType == ShowCaseType.TOOLTIP) {
+            mMessageView = new GuideMessageView(getContext(), type);
+            mMessageView.setPadding(tooltipMessageViewPadding, 0, tooltipMessageViewPadding, 0);
+            setVisibleBackgroundOverlay(true);
+        } else {
+            mMessageView = new GuideMessageView(getContext());
+            mMessageView.setPadding(messageViewPadding, messageViewPadding, messageViewPadding, messageViewPadding);
+        }
 
         addView(mMessageView, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -200,11 +225,12 @@ public class GuideView extends FrameLayout {
         marginGuide = MARGIN_INDICATOR * density;
         indicatorHeight = INDICATOR_HEIGHT * density;
         indicatorHeightTooltip = INDICATOR_HEIGHT_TOOLTIP * density;
+        toolTipTriangleSize = (int) (INDICATOR_HEIGHT_TOOLTIP * density);
         messageViewPadding = (int) (MESSAGE_VIEW_PADDING * density);
         strokeCircleWidth = STROKE_CIRCLE_INDICATOR_SIZE * density;
         circleIndicatorSizeFinal = CIRCLE_INDICATOR_SIZE * density;
+        tooltipMessageViewPadding = (int) (TOOLTIP_PADDING * density);
     }
-
 
     private int getNavigationBarSize() {
         Resources resources = getContext().getResources();
@@ -244,8 +270,14 @@ public class GuideView extends FrameLayout {
             paintCircleInner.setColor(CIRCLE_INNER_INDICATOR_COLOR);
             paintCircleInner.setAntiAlias(true);
 
-
-            final float x = (targetRect.left / 2 + targetRect.right / 2);
+            float x;
+            if (tooltipArrow != null && tooltipArrow == TooltipArrow.RIGHT) {
+                x = targetRect.right;
+            } else if (tooltipArrow != null && tooltipArrow == TooltipArrow.LEFT) {
+                x = targetRect.left;
+            } else {
+                x = (targetRect.left / 2 + targetRect.right / 2);
+            }
 
             if (showCaseType == ShowCaseType.ON_BOARDING) {
                 canvas.drawLine(x,
@@ -264,14 +296,30 @@ public class GuideView extends FrameLayout {
 
             if (showCaseType == ShowCaseType.TOOLTIP || showCaseType == ShowCaseType.ON_BOARDING_ARROW) {
                 Path path = new Path();
-                float y = isTop ? targetRect.bottom : targetRect.top;
+
+                float y;
+                if (tooltipArrow != null) {
+                    y = targetRect.top / 2 + targetRect.bottom / 2;
+                }
+                else {
+                    y = isTop ? targetRect.bottom : targetRect.top;
+                }
                 path.setFillType(Path.FillType.EVEN_ODD);
-                if (!isTop) {
+                if (tooltipArrow != null && tooltipArrow == TooltipArrow.LEFT) {
+                    path.moveTo(x - (toolTipTriangleSize * density), y - (toolTipTriangleSize * density));
+                    path.lineTo(x, y);
+                    path.lineTo(x - (toolTipTriangleSize * density), y + (toolTipTriangleSize * density));
+                }
+                else if (tooltipArrow != null && tooltipArrow == TooltipArrow.RIGHT) {
+                    path.moveTo(x + (toolTipTriangleSize * density), y - (toolTipTriangleSize * density));
+                    path.lineTo(x, y);
+                    path.lineTo(x + (toolTipTriangleSize * density), y + (toolTipTriangleSize * density));
+                }
+                else if (!isTop) {
                     path.moveTo(x - (toolTipTriangleSize * density), y - (toolTipTriangleSize * density));
                     path.lineTo(x, y);
                     path.lineTo(x + (toolTipTriangleSize * density), y - (toolTipTriangleSize * density));
-                }
-                else {
+                } else {
                     path.moveTo(x - (toolTipTriangleSize * density), y + (toolTipTriangleSize * density));
                     path.lineTo(x, y);
                     path.lineTo(x + (toolTipTriangleSize * density), y + (toolTipTriangleSize * density));
@@ -294,8 +342,7 @@ public class GuideView extends FrameLayout {
     public void dismiss(View view) {
         if (getContext() instanceof ViewComponentManager.FragmentContextWrapper) {
             ((ViewGroup) ((Activity) FragmentComponentManager.findActivity(getContext())).getWindow().getDecorView()).removeView(this);
-        }
-        else {
+        } else {
             ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(this);
         }
         mIsShowing = false;
@@ -309,7 +356,7 @@ public class GuideView extends FrameLayout {
         float x = event.getX();
         float y = event.getY();
 
-        if(dismissType == null) {
+        if (dismissType == null) {
             return false;
         }
 
@@ -366,10 +413,15 @@ public class GuideView extends FrameLayout {
     private Point resolveMessageViewLocation() {
 
         int xMessageView = 0;
-        if (mAlignType == AlignType.center) {
+        if (tooltipArrow != null && tooltipArrow == TooltipArrow.LEFT) {
+            xMessageView = (int) (targetRect.left - mMessageView.getWidth() + messageViewPadding);
+        } else if (tooltipArrow != null && tooltipArrow == TooltipArrow.RIGHT) {
+            xMessageView = (int) (targetRect.right - messageViewPadding);
+        } else if (mAlignType == AlignType.center) {
             xMessageView = (int) (targetRect.left - mMessageView.getWidth() / 2 + target.getWidth() / 2);
-        } else
+        } else {
             xMessageView = (int) (targetRect.right) - mMessageView.getWidth();
+        }
 
         if (isLandscape()) {
             xMessageView -= getNavigationBarSize();
@@ -380,14 +432,17 @@ public class GuideView extends FrameLayout {
         if (xMessageView < 0)
             xMessageView = 0;
 
-
-        //set message view bottom
-        if (targetRect.top + (indicatorHeight) > getHeight() / 2) {
+        if (tooltipArrow != null && (tooltipArrow == TooltipArrow.RIGHT || tooltipArrow == TooltipArrow.LEFT)) {
+            // set message on the right or left of target view
+            yMessageView = (int) (targetRect.top - mMessageView.getHeight() / 2 + target.getHeight() / 2);
+        }
+        else if (targetRect.top + (indicatorHeight) > getHeight() / 2) {
+            //set message view bottom
             isTop = false;
             yMessageView = (int) (targetRect.top - mMessageView.getHeight() - (showCaseType == ShowCaseType.ON_BOARDING ? indicatorHeight : indicatorHeightTooltip));
         }
-        //set message view top
         else {
+            //set message view top
             isTop = true;
             yMessageView = ((int) (targetRect.top + target.getHeight() + (showCaseType == ShowCaseType.ON_BOARDING ? indicatorHeight : indicatorHeightTooltip)));
         }
@@ -407,8 +462,7 @@ public class GuideView extends FrameLayout {
 
         if (getContext() instanceof ViewComponentManager.FragmentContextWrapper) {
             ((ViewGroup) ((Activity) FragmentComponentManager.findActivity(getContext())).getWindow().getDecorView()).addView(this);
-        }
-        else {
+        } else {
             ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).addView(this);
         }
         AlphaAnimation startAnimation = new AlphaAnimation(0.0f, 1.0f);
@@ -426,56 +480,68 @@ public class GuideView extends FrameLayout {
         mMessageView.setContentText(str);
     }
 
-    public void setTitleGravity(int setGravity){
+    public void setTitleGravity(int setGravity) {
         mMessageView.mTitleTextView.setGravity(setGravity);
     }
 
-    public void setContentGravity(int setGravity){
+    public void setContentGravity(int setGravity) {
         mMessageView.mContentTextView.setGravity(setGravity);
     }
 
-    public void setButtonGravity(int setGravity){
+    public void setButtonGravity(int setGravity) {
         mMessageView.childContentButton.setGravity(setGravity);
     }
 
-    public void setButtonText(String buttonText){
+    public void setButtonText(String buttonText) {
         mMessageView.okButton.setText(buttonText);
     }
 
-    public void setButtonBackground(Drawable drawable){
+    public void setButtonBackground(Drawable drawable) {
         mMessageView.okButton.setBackground(drawable);
     }
 
-    public void setButtonTextColor(@ColorInt int color){
+    public void setButtonTextColor(@ColorInt int color) {
         mMessageView.okButton.setTextColor(color);
     }
 
-    public void setTitlePadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom){
+    public void setTitlePadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
 
         paddingLeft = mMessageView.padding + paddingLeft;
         paddingRight = mMessageView.padding + paddingRight;
         paddingBottom = mMessageView.paddingBetween + paddingBottom;
         paddingTop = mMessageView.paddingBetween + paddingTop;
 
-        mMessageView.mTitleTextView.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
+        mMessageView.mTitleTextView.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
 
-    public void setMessagePadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom){
+    public void setMessagePadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
         paddingLeft = mMessageView.padding + paddingLeft;
         paddingRight = mMessageView.padding + paddingRight;
         paddingBottom = mMessageView.paddingBetween + paddingBottom;
         paddingTop = mMessageView.paddingBetween + paddingTop;
 
-        mMessageView.mContentTextView.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
+        mMessageView.mContentTextView.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
 
-    public void setButtonPadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom){
+    public void setButtonPadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
         paddingLeft = mMessageView.padding + paddingLeft;
         paddingRight = mMessageView.padding + paddingRight;
         paddingBottom = mMessageView.paddingBetween + paddingBottom;
         paddingTop = mMessageView.paddingBetween + paddingTop;
 
-        mMessageView.childContentButton.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
+        mMessageView.childContentButton.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+    }
+
+    public void setContentTextAppearance(@StyleRes int styleRes) {
+        mMessageView.setContentTextAppearance(styleRes);
+    }
+
+    public void setContentBackground(@DrawableRes int drawRes) {
+        mMessageView.setContentBackground(drawRes);
+    }
+
+    public void setContentTextColor(@ColorRes int colorRes) {
+        mMessageView.setContentTextColor(colorRes);
     }
 
     public void setContentSpan(Spannable span) {
@@ -500,7 +566,7 @@ public class GuideView extends FrameLayout {
     }
 
     public void setVisibleBackgroundOverlay(boolean isVisibleBackground) {
-        if(isVisibleBackground) {
+        if (isVisibleBackground) {
             selfPaint.setColor(showCaseType == ShowCaseType.ON_BOARDING
                     || showCaseType == ShowCaseType.ON_BOARDING_ARROW ? BACKGROUND_COLOR : BACKGROUND_TRANSPARENT);
             selfPaint.setStyle(Paint.Style.FILL);
@@ -519,6 +585,7 @@ public class GuideView extends FrameLayout {
         private AlignType alignType;
         private DismissType dismissType;
         private ShowCaseType showCaseType;
+        private TooltipArrow tooltipArrow;
         private Context context;
         private Spannable contentSpan;
         private Typeface titleTypeFace, contentTypeFace;
@@ -554,6 +621,12 @@ public class GuideView extends FrameLayout {
         @ColorInt
         private int tooltipTriangleColor;
         private int tooltipTriangleSize;
+
+        @ColorRes private Integer contentTextColor;
+        @StyleRes private Integer contentTextAppearance;
+        @DrawableRes private Integer contentBackground;
+
+
 
         public Builder(Context context) {
             this.context = context;
@@ -598,7 +671,6 @@ public class GuideView extends FrameLayout {
         }
 
         /**
-         *
          * @param paddingLeftTitle
          * @param paddingTopTitle
          * @param paddingRightTitle
@@ -606,7 +678,7 @@ public class GuideView extends FrameLayout {
          * @return
          */
 
-        public Builder setPaddingTitle(int paddingLeftTitle, int paddingTopTitle, int paddingRightTitle, int paddingBottomTitle){
+        public Builder setPaddingTitle(int paddingLeftTitle, int paddingTopTitle, int paddingRightTitle, int paddingBottomTitle) {
             this.paddingLeftTitle = paddingLeftTitle;
             this.paddingTopTitle = paddingTopTitle;
             this.paddingRightTitle = paddingRightTitle;
@@ -615,7 +687,6 @@ public class GuideView extends FrameLayout {
         }
 
         /**
-         *
          * @param paddingLeftMessage
          * @param paddingTopTitle
          * @param paddingRightTitle
@@ -623,7 +694,7 @@ public class GuideView extends FrameLayout {
          * @return
          */
 
-        public Builder setPaddingMessage(int paddingLeftMessage, int paddingTopTitle, int paddingRightTitle, int paddingBottomTitle){
+        public Builder setPaddingMessage(int paddingLeftMessage, int paddingTopTitle, int paddingRightTitle, int paddingBottomTitle) {
             this.paddingLeftMessage = paddingLeftMessage;
             this.paddingTopMessage = paddingTopTitle;
             this.paddingRightMessage = paddingRightTitle;
@@ -631,7 +702,7 @@ public class GuideView extends FrameLayout {
             return this;
         }
 
-        public Builder setPaddingButton(int paddingLeftButton, int paddingTopButton, int paddingRightButton, int paddingBottomButton){
+        public Builder setPaddingButton(int paddingLeftButton, int paddingTopButton, int paddingRightButton, int paddingBottomButton) {
             this.paddingLeftButton = paddingLeftButton;
             this.paddingTopButton = paddingTopButton;
             this.paddingRightButton = paddingRightButton;
@@ -708,7 +779,7 @@ public class GuideView extends FrameLayout {
         }
 
         /**
-         *  define visible background showcase
+         * define visible background showcase
          *
          * @param visibleBackground
          * @return
@@ -720,6 +791,7 @@ public class GuideView extends FrameLayout {
 
         /**
          * define background color
+         *
          * @param colorOverlay
          * @return
          */
@@ -751,6 +823,11 @@ public class GuideView extends FrameLayout {
 
         public Builder setTooltipTriangleSize(int tooltipTriangleSize) {
             this.tooltipTriangleSize = tooltipTriangleSize;
+            return this;
+        }
+
+        public Builder setTooltipArrow(TooltipArrow arrow) {
+            this.tooltipArrow = arrow;
             return this;
         }
 
@@ -789,17 +866,19 @@ public class GuideView extends FrameLayout {
 
         /**
          * set title gravity. you can use Gravity.CENTER, Gravity.LEFT, or Gravity.RIGHT
+         *
          * @param titleGravity int
          * @return builder
          */
 
-        public Builder setTitleGravity(int titleGravity){
+        public Builder setTitleGravity(int titleGravity) {
             this.titleGravity = titleGravity;
             return this;
         }
 
         /**
          * set messages gravity, you can use Gravity.CENTER, Gravity.LEFT, or Gravity.RIGHT
+         *
          * @param contentGravity int
          * @return builder
          */
@@ -811,29 +890,31 @@ public class GuideView extends FrameLayout {
 
         /**
          * set button gravity, you can use Gravity.CENTER, Gravity.LEFT, or Gravity.RIGHT
+         *
          * @param buttonGravity int
          * @return builder
          */
 
-        public Builder setButtonGravity(int buttonGravity){
+        public Builder setButtonGravity(int buttonGravity) {
             this.buttonGravity = buttonGravity;
             return this;
         }
 
-        public Builder setButtonText(String buttonText){
+        public Builder setButtonText(String buttonText) {
             this.buttonText = buttonText;
             return this;
         }
 
-        public Builder setButtonBackground(Drawable drawable){
+        public Builder setButtonBackground(Drawable drawable) {
             this.buttonBackground = drawable;
             return this;
         }
 
-        public Builder setButtonTextColor(@ColorInt int color){
+        public Builder setButtonTextColor(@ColorInt int color) {
             this.buttonTextColor = color;
             return this;
         }
+
         /**
          * changing inner circle size indicator
          *
@@ -856,12 +937,27 @@ public class GuideView extends FrameLayout {
             return this;
         }
 
+        public Builder setContentTextAppearance(@StyleRes int styleRes) {
+            this.contentTextAppearance = styleRes;
+            return this;
+        }
+
+        public Builder setContentTextColor(@ColorRes int colorRes) {
+            this.contentTextColor = colorRes;
+            return this;
+        }
+
+        public Builder setContentBackground(@DrawableRes int drawRes) {
+            this.contentBackground = drawRes;
+            return this;
+        }
 
         public GuideView build() {
-            GuideView guideView = new GuideView(context, targetView);
+            showCaseType = showCaseType == null ? ShowCaseType.ON_BOARDING : showCaseType;
+            GuideView guideView = new GuideView(context, targetView, showCaseType);
             guideView.mAlignType = alignType != null ? alignType : AlignType.auto;
             guideView.dismissType = dismissType;
-            guideView.showCaseType = showCaseType == null ? ShowCaseType.ON_BOARDING : showCaseType;
+            guideView.tooltipArrow = tooltipArrow;
             guideView.tooltipTriangleColor = tooltipTriangleColor;
             guideView.toolTipTriangleSize = tooltipTriangleSize;
 
@@ -879,10 +975,10 @@ public class GuideView extends FrameLayout {
             if (titleTypeFace != null) {
                 guideView.setTitleTypeFace(titleTypeFace);
             }
-            if(guideView.selfPaint !=null) {
+            if (guideView.selfPaint != null) {
                 guideView.setVisibleBackgroundOverlay(visibleBackground);
             }
-            if(backgroundColor !=0) {
+            if (backgroundColor != 0) {
                 guideView.setBackgroundColor(backgroundColor);
             }
             if (contentTypeFace != null) {
@@ -906,16 +1002,16 @@ public class GuideView extends FrameLayout {
             if (strokeCircleWidth != 0) {
                 guideView.strokeCircleWidth = strokeCircleWidth * density;
             }
-            if(titleGravity !=0) {
+            if (titleGravity != 0) {
                 guideView.setTitleGravity(titleGravity);
             }
-            if(contentGravity !=0){
+            if (contentGravity != 0) {
                 guideView.setContentGravity(contentGravity);
             }
-            if(buttonGravity !=0){
+            if (buttonGravity != 0) {
                 guideView.setButtonGravity(buttonGravity);
             }
-            if(buttonText !=null) {
+            if (buttonText != null) {
                 guideView.setButtonText(buttonText);
             }
             if (buttonBackground != null) {
@@ -924,13 +1020,22 @@ public class GuideView extends FrameLayout {
             if (buttonTextColor != null) {
                 guideView.setButtonTextColor(buttonTextColor);
             }
-            if(paddingLeftTitle !=0 || paddingTopTitle !=0 || paddingRightTitle !=0 || paddingBottomTitle !=0){
-                guideView.setTitlePadding(paddingLeftTitle,paddingTopTitle,paddingRightTitle,paddingBottomTitle);
+            if (contentTextColor != null) {
+                guideView.setContentTextColor(contentTextColor);
             }
-            if(paddingLeftMessage !=0 || paddingTopMessage !=0 || paddingRightMessage !=0 || paddingBottomMessage !=0){
-                guideView.setMessagePadding(paddingLeftMessage,paddingTopMessage,paddingRightMessage,paddingBottomMessage);
+            if (contentTextAppearance != null) {
+                guideView.setContentTextAppearance(contentTextAppearance);
             }
-            if(paddingLeftButton !=0 || paddingRightButton !=0 || paddingBottomButton !=0 || paddingTopButton !=0){
+            if (contentBackground != null) {
+                guideView.setContentBackground(contentBackground);
+            }
+            if (paddingLeftTitle != 0 || paddingTopTitle != 0 || paddingRightTitle != 0 || paddingBottomTitle != 0) {
+                guideView.setTitlePadding(paddingLeftTitle, paddingTopTitle, paddingRightTitle, paddingBottomTitle);
+            }
+            if (paddingLeftMessage != 0 || paddingTopMessage != 0 || paddingRightMessage != 0 || paddingBottomMessage != 0) {
+                guideView.setMessagePadding(paddingLeftMessage, paddingTopMessage, paddingRightMessage, paddingBottomMessage);
+            }
+            if (paddingLeftButton != 0 || paddingRightButton != 0 || paddingBottomButton != 0 || paddingTopButton != 0) {
                 guideView.setButtonPadding(paddingLeftButton, paddingTopButton, paddingRightButton, paddingBottomButton);
             }
             return guideView;
